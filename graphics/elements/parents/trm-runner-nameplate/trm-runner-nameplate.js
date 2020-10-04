@@ -28,6 +28,18 @@ class TRMRunnerNameplate extends PolymerElement {
 					text-transform: uppercase;
 				}
 
+				#body.right-align {
+					flex-direction: row-reverse;
+				}
+
+				#body.right-align #name {
+					text-align: right;
+				}
+
+				#name.standardize-width {
+					min-width: 150px;
+				}
+
 				#name {
 					background: var(--marathon-alt-col);
 					float: left;
@@ -74,6 +86,8 @@ class TRMRunnerNameplate extends PolymerElement {
 	static get properties() {
 		return {
 			runnerid: Number,
+			setsize: Boolean,
+			rightalign: Boolean,
 		};
 	}
 
@@ -104,6 +118,9 @@ class TRMRunnerNameplate extends PolymerElement {
 	drawNameplate(value) {
 		const nameplate = value && value.find((timer) => timer.id === parseInt(this.runnerid));
 		if (!nameplate) return;
+
+		if (this.setsize) this.$.name.classList.add("standardize-width");
+		if (this.rightalign) this.$.body.classList.add("right-align");
 
 		this.$.name.innerText = nameplate.runner || "Unknown";
 		if (nameplate.state !== 3) this.$.time.classList.add("hidden");
