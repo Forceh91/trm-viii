@@ -14,6 +14,7 @@ class TRMRunInfo extends PolymerElement {
 	static get template() {
 		return html`
 			<link rel="stylesheet" href="../shared/fonts/fontawesome/font-awesome.min.css" />
+			<link rel="stylesheet" href="../shared/fonts/exo2/exo2.css" />
 
 			<style>
 				* {
@@ -25,11 +26,11 @@ class TRMRunInfo extends PolymerElement {
 					width: 100%;
 				}
 
-				#run_container {
+				.run_container {
 					width: 100%;
 				}
 
-				#run_container #run_title {
+				.run_container #run_title {
 					color: var(--marathon-col);
 					font-size: 30px;
 					font-weight: bold;
@@ -38,14 +39,14 @@ class TRMRunInfo extends PolymerElement {
 					margin-bottom: 10px;
 				}
 
-				#run_container #run_category {
+				.run_container #run_category {
 					font-size: 25px;
 					text-align: center;
 					margin-bottom: 30px;
 					width: 100%;
 				}
 
-				#run_container .run-info-block {
+				.run_container .run-info-block {
 					border: 1px solid #aaa;
 					background: #444;
 					font-size: 25px;
@@ -54,11 +55,11 @@ class TRMRunInfo extends PolymerElement {
 					width: 100%;
 				}
 
-				#run_container .run-info-block {
+				.run_container .run-info-block {
 					margin-bottom: 25px;
 				}
 
-				#run_container .run-info-block .run-info-type {
+				.run_container .run-info-block .run-info-type {
 					background: var(--marathon-col);
 					padding: 10px;
 					display: flex;
@@ -67,16 +68,16 @@ class TRMRunInfo extends PolymerElement {
 					width: 50px;
 				}
 
-				#run_container .run-info-block .run-info-text {
+				.run_container .run-info-block .run-info-text {
 					padding: 0 10px;
 				}
 
-				#run_container #timer,
-				#run_container #estimate {
+				.run_container #timer,
+				.run_container #estimate {
 					font-variant-numeric: tabular-nums;
 				}
 
-				#run_container.is-horizontal {
+				.run_container.is-horizontal {
 					align-items: center;
 					display: flex;
 					flex-direction: row;
@@ -84,28 +85,56 @@ class TRMRunInfo extends PolymerElement {
 					height: 100%;
 				}
 
-				#run_container.is-horizontal .runner_container {
+				.runner_container.is-horizontal {
 					display: none;
+				}
+
+				.run_container .run-info-text.timer {
+					align-items: center;
+					display: flex;
+					width: calc(100% - 50px);
+				}
+
+				.run_container .timer #timer {
+					min-width: 130px;
+				}
+
+				.run_container .timer #estimate_container {
+					align-items: center;
+					display: flex;
+					font-weight: bold;
+					margin-left: auto;
+				}
+
+				.run_container .timer #estimate_container #estimate {
+					padding-left: 10px;
+					text-align: right;
 				}
 			</style>
 
-			<div id="run_container">
+			<div class="run_container">
 				<div id="run_title"></div>
 				<div id="run_category"></div>
 
-				<div id="run_container" class="run-info-block runner_container">
+				<div id="runners" class="run_container run-info-block runner_container">
 					<div class="run-info-type"><i class="fas fa-user"></i></div>
 					<div class="run-info-text" id="runner"></div>
 				</div>
 
-				<div id="run_container" class="run-info-block">
+				<div class="run_container run-info-block">
 					<div class="run-info-type"><i class="fas fa-gamepad"></i></div>
 					<div class="run-info-text" id="platform"></div>
 				</div>
 
-				<div id="run_container" class="run-info-block">
+				<div class="run_container run-info-block">
 					<div class="run-info-type"><i class="fas fa-stopwatch"></i></div>
-					<div class="run-info-text"><span id="timer"></span> / <span id="estimate"></span></div>
+					<div class="run-info-text timer">
+						<div id="timer"></div>
+						<div id="estimate_container">
+							<div class="run-info-type"><i class="fas fa-flag-checkered"></i></div>
+							<div id="estimate"></div>
+						</div>
+					</div>
 				</div>
 			</div>
 		`;
@@ -147,7 +176,7 @@ class TRMRunInfo extends PolymerElement {
 			this.$.timer.innerText = newVal.formattedTime || "00:00";
 		});
 
-		if (this.horizontal) this.$.run_container.classList.add("is-horizontal");
+		if (this.horizontal) this.$.runners.classList.add("is-horizontal");
 	}
 
 	run() {
