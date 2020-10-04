@@ -1,8 +1,8 @@
 # Tomb Raider Marathon Bundle
 
-TRM bundle for NodeCG with built in Tiltify. This bundle was used during TRM VI.
+TRM bundle for NodeCG with built in Tiltify. This bundle was used during TRM VII.
 
-Marathon colour is: #d11947
+Marathon colour is: #ffa301 / #fe5100
 
 ---
 
@@ -14,19 +14,19 @@ Marathon colour is: #d11947
 
 ## Development Rules
 
-Development for this bundle should **never** be done on the master branch. Always create a new branch with a brief description of the changes you wish to make.
+Development for this bundle should **never** be done on the `main` branch. Always create a new branch with a brief description of the changes you wish to make.
 
-Once you are happy with your changes then you can push them to GitHub and [create a new Pull Request](https://github.com/Forceh91/trm-v/pulls).
+Once you are happy with your changes then you can push them to GitHub and [create a new Pull Request](https://github.com/Forceh91/trm-vii/pulls).
 
 ### Before pushing your branch to GitHub
 
-You need to make sure that your branch is inline with the `master` branch before you push it up to GitHub. To do this, you will need to do the following:
+You need to make sure that your branch is inline with the `main` branch before you push it up to GitHub. To do this, you will need to do the following:
 
 ```cmd
-git checkout master
+git checkout main
 git pull
 git checkout -
-git rebase master
+git rebase main
 git push
 ```
 
