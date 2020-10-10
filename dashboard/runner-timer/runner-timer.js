@@ -4,6 +4,7 @@ import { beforeNextRender } from "../../../../node_modules/@polymer/polymer/lib/
 const runnerTimer = nodecg.Replicant("runnerTimer");
 const runnerTimers = nodecg.Replicant("runnerTimers");
 const currentGame = nodecg.Replicant("currentGame");
+const obsAudioSources = nodecg.Replicant("obsAudioSources");
 
 class DashboardRunnerTimer extends PolymerElement {
 	static get is() {
@@ -16,7 +17,7 @@ class DashboardRunnerTimer extends PolymerElement {
 		const replicants = [currentGame, runnerTimer, runnerTimers];
 
 		let numDeclared = 0;
-		replicants.forEach((replicant) => {
+		replicants.forEach(replicant => {
 			replicant.once("change", () => {
 				numDeclared++;
 
@@ -30,7 +31,7 @@ class DashboardRunnerTimer extends PolymerElement {
 	run() {
 		const self = this;
 
-		currentGame.on("change", (newVal) => {
+		currentGame.on("change", newVal => {
 			// get the runners
 			const runners = newVal[1];
 
@@ -43,14 +44,18 @@ class DashboardRunnerTimer extends PolymerElement {
 			});
 		});
 
-		runnerTimer.on("change", (newVal) => {
+		runnerTimer.on("change", newVal => {
 			this.$.runnerTimer.innerText = newVal.formattedTime;
 
 			this.toggleButtonStatus(newVal.state);
 		});
 
-		runnerTimers.on("change", (newVal) => {
+		runnerTimers.on("change", newVal => {
 			this.renderRunnerTimers(newVal);
+		});
+
+		obsAudioSources.on("change", () => {
+			this.renderRunnerTimers(runnerTimers.value);
 		});
 
 		this.$.startTimer.addEventListener("click", () => {
@@ -94,7 +99,7 @@ class DashboardRunnerTimer extends PolymerElement {
 
 	parseRunners(runners) {
 		if (!runners) return [];
-		return runners.split(",").map((runner) => {
+		return runners.split(",").map(runner => {
 			// trim whitespace
 			runner.trim();
 

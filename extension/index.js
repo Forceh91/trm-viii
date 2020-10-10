@@ -78,4 +78,12 @@ module.exports = function (nodecg) {
 		nodecg.log.error('Failed to load "featuredrunner" lib:', e.stack);
 		process.exit(1);
 	}
+
+	// obs audio control
+	try {
+		require("./obs-audio-control.js")(nodecg);
+	} catch (e) {
+		nodecg.log.error('Failed to load "obs-audio-controller" lib:', e.stack);
+		process.exit(1);
+	}
 };

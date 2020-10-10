@@ -63,7 +63,7 @@
 				<div id="runnerTimerList">
 					<dom-repeat id="runnerTimers" items="[[timers]]" as="timer" filter="_onlyTimersWithRunner">
 						<template>
-							<dashboard-runner-timer-item timer="[[timer]]"></dashboard-runner-timer-item>
+							<dashboard-runner-timer-item ix="[[index]]" timer="[[timer]]"></dashboard-runner-timer-item>
 						</template>
 					</dom-repeat>
 				</div>

@@ -1,6 +1,8 @@
 import { html } from "../../node_modules/@polymer/polymer/lib/utils/html-tag.js";
 import { PolymerElement } from "../../node_modules/@polymer/polymer/polymer-element.js";
 
+const obsAudioSources = nodecg.Replicant("obsAudioSources", { persistent: false });
+
 class DashboardRunnerTimerItem extends PolymerElement {
 	static get template() {
 		return html`
@@ -89,6 +91,10 @@ class DashboardRunnerTimerItem extends PolymerElement {
 				</button>
 
 				<button type="button" class="btn btn-sm btn-danger" id="resetTimer" class="reset" disabled$="[[shouldDisableWhenRunning()]]">Reset</button>
+
+				<button type="button" class="btn btn-sm btn-warning" id="toggleSound" class="audio" disabled$="[[shouldDisableSoundOption()]]">
+					Make Audible
+				</button>
 			</div>
 		`;
 	}
@@ -99,6 +105,7 @@ class DashboardRunnerTimerItem extends PolymerElement {
 
 	static get properties() {
 		return {
+			ix: Number,
 			timer: Object,
 		};
 	}
@@ -109,6 +116,7 @@ class DashboardRunnerTimerItem extends PolymerElement {
 		this.$.startTimer.addEventListener("click", this._startTimer.bind(this));
 		this.$.finishTimer.addEventListener("click", this._finishTimer.bind(this));
 		this.$.resetTimer.addEventListener("click", this._resetTimer.bind(this));
+		this.$.toggleSound.addEventListener("click", this._toggleSound.bind(this));
 	}
 
 	shouldDisableWhenRunning() {
@@ -125,6 +133,15 @@ class DashboardRunnerTimerItem extends PolymerElement {
 
 	isFinished() {
 		return this.timer.state === 3;
+	}
+
+	audioSource() {
+		return this.ix >= 0 && obsAudioSources && this.ix < obsAudioSources.value.length && obsAudioSources.value[this.ix];
+	}
+
+	shouldDisableSoundOption() {
+		const audioSource = this.audioSource();
+		return obsAudioSources.value.length < 2 || !audioSource || !audioSource.muted;
 	}
 
 	getPositionClass() {
@@ -149,6 +166,10 @@ class DashboardRunnerTimerItem extends PolymerElement {
 
 	_resetTimer() {
 		nodecg.sendMessage("runnertimers:reset", this.timer.id);
+	}
+
+	_toggleSound() {
+		nodecg.sendMessage("runner:togglesound", { runnerIx: this.ix, muteStatus: !this.audioSource().muted });
 	}
 }
 
