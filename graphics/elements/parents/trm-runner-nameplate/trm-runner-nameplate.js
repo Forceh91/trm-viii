@@ -4,10 +4,12 @@ import { html } from "../../../../node_modules/@polymer/polymer/lib/utils/html-t
 
 // replicants
 const runnerTimers = nodecg.Replicant("runnerTimers");
+const obsAudioSources = nodecg.Replicant("obsAudioSources");
 
 class TRMRunnerNameplate extends PolymerElement {
 	static get template() {
 		return html`
+			<link rel="stylesheet" href="../shared/fonts/fontawesome/font-awesome.min.css" />
 			<style>
 				* {
 					box-sizing: border-box;
@@ -40,10 +42,20 @@ class TRMRunnerNameplate extends PolymerElement {
 					min-width: 150px;
 				}
 
-				#name {
+				#name_container {
 					background: var(--marathon-alt-col);
+					display: flex;
 					float: left;
 					padding: 15px;
+				}
+
+				#name_container #sound {
+					display: none;
+				}
+
+				#name_container #sound.is-on {
+					display: block;
+					margin-right: 10px;
 				}
 
 				#time {
@@ -70,7 +82,10 @@ class TRMRunnerNameplate extends PolymerElement {
 			</style>
 
 			<div id="body">
-				<div id="name"></div>
+				<div id="name_container">
+					<div id="sound"><i class="fas fa-volume-up"></i></div>
+					<div id="name"></div>
+				</div>
 				<div id="time">
 					<div id="position"></div>
 					<div id="finalTime"></div>
@@ -98,7 +113,7 @@ class TRMRunnerNameplate extends PolymerElement {
 		const replicants = [runnerTimers];
 
 		let numDeclared = 0;
-		replicants.forEach((replicant) => {
+		replicants.forEach(replicant => {
 			replicant.once("change", () => {
 				numDeclared++;
 
@@ -110,13 +125,17 @@ class TRMRunnerNameplate extends PolymerElement {
 	}
 
 	run() {
-		runnerTimers.on("change", (newVal) => {
+		runnerTimers.on("change", newVal => {
 			this.drawNameplate(newVal);
+		});
+
+		obsAudioSources.on("change", newVal => {
+			this.drawAudioInfo(newVal);
 		});
 	}
 
 	drawNameplate(value) {
-		const nameplate = value && value.find((timer) => timer.id === parseInt(this.runnerid));
+		const nameplate = value && value.find(timer => timer.id === parseInt(this.runnerid));
 		if (!nameplate) return;
 
 		if (this.setsize) this.$.name.classList.add("standardize-width");
@@ -129,6 +148,21 @@ class TRMRunnerNameplate extends PolymerElement {
 			this.$.position.innerText = nameplate.position;
 			this.$.finalTime.innerText = nameplate.formattedTime;
 		}
+
+		this.drawAudioInfo();
+	}
+
+	drawAudioInfo() {
+		const audio = this.getAudioSource();
+		if (!audio) return this.$.sound.classList.remove("is-on");
+
+		if (audio.muted) this.$.sound.classList.remove("is-on");
+		else this.$.sound.classList.add("is-on");
+	}
+
+	getAudioSource() {
+		const ix = this.runnerid;
+		return obsAudioSources && obsAudioSources.value && ix < obsAudioSources.value.length && obsAudioSources.value[ix];
 	}
 }
 

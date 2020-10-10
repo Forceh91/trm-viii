@@ -1,7 +1,7 @@
 import { html } from "../../node_modules/@polymer/polymer/lib/utils/html-tag.js";
 import { PolymerElement } from "../../node_modules/@polymer/polymer/polymer-element.js";
 
-const obsAudioSources = nodecg.Replicant("obsAudioSources", { persistent: false });
+const obsAudioSources = nodecg.Replicant("obsAudioSources");
 
 class DashboardRunnerTimerItem extends PolymerElement {
 	static get template() {

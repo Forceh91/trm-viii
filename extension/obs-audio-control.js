@@ -2,7 +2,7 @@
 
 module.exports = function (nodecg) {
 	const OBSWebSocket = require("obs-websocket-js");
-	const obsAudioSources = nodecg.Replicant("obsAudioSources", { defaultValue: [] });
+	const obsAudioSources = nodecg.Replicant("obsAudioSources", { defaultValue: [], persistent: false });
 	const currentGame = nodecg.Replicant("currentGame");
 
 	const obs = new OBSWebSocket();
@@ -15,7 +15,6 @@ module.exports = function (nodecg) {
 	});
 
 	currentGame.on("change", () => {
-		console.log("getting sources");
 		fetchSourcesList();
 	});
 
@@ -28,7 +27,6 @@ module.exports = function (nodecg) {
 
 	function fetchSourcesList() {
 		obs.send("GetCurrentScene").then(resp => {
-			console.log(resp.sources);
 			parseSourcesList(resp.sources);
 		});
 	}
@@ -45,7 +43,6 @@ module.exports = function (nodecg) {
 		if (!gameSources.length) return;
 
 		// put these into the replicant
-		console.log("sources:", ...gameSources);
 		obsAudioSources.value.push(...gameSources);
 	}
 
