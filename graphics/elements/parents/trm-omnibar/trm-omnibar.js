@@ -85,6 +85,7 @@ class TRMOmnibar extends PolymerElement {
 		return {
 			hideDeaths: Boolean,
 			hideTimer: Boolean,
+			hidetotal: Boolean
 		};
 	}
 
@@ -104,6 +105,9 @@ class TRMOmnibar extends PolymerElement {
 				}
 			});
 		});
+
+		if (this.hidetotal) this.$.total.style.display = "none";
+
 
 		if (this.dataset) {
 			if (this.dataset.hideTimer === "true") {
