@@ -18,7 +18,6 @@ class TRMNowPlaying extends PolymerElement {
 					display: flex;
 					font-size: 20px;
 					height: 100%;
-					justify-content: center;
 					overflow: hidden;
 					width: 100%;
 					white-space: nowrap;
@@ -35,7 +34,7 @@ class TRMNowPlaying extends PolymerElement {
 
 				#track_container {
 					display: flex;
-					justify-content: center;
+					max-width: 100%;
 				}
 
 				#track_container div:first-child {
@@ -46,24 +45,14 @@ class TRMNowPlaying extends PolymerElement {
 				.fa.fa-music {
 					margin-right: 5px;
 				}
-
-				#body.overflowing {
-					display: block;
-				}
-
-				#body.overflowing #track_container {
-					justify-content: initial;
-				}
-
-				#body.overflowing #track_container div {
-					display: inline-block;
-				}
 			</style>
 
 			<div id="body">
 				<div id="track_container">
 					<div><span class="fa fa-music"></span>&nbsp;</div>
-					<div id="track_artist"><span id="artist"></span>&nbsp;-&nbsp;<span id="track"></span></div>
+					<div id="track_artist">
+						<span id="artist"></span>&nbsp;-&nbsp;<span id="track"></span><span id="album_container">&nbsp;(<span id="album"></span>)</span>
+					</div>
 				</div>
 			</div>
 		`;
@@ -84,7 +73,7 @@ class TRMNowPlaying extends PolymerElement {
 
 		const replicants = [foobarNowPlaying];
 		let numDeclared = 0;
-		replicants.forEach((replicant) => {
+		replicants.forEach(replicant => {
 			replicant.once("change", () => {
 				numDeclared++;
 
@@ -96,7 +85,9 @@ class TRMNowPlaying extends PolymerElement {
 	}
 
 	run() {
-		foobarNowPlaying.on("change", (newVal) => {
+		foobarNowPlaying.on("change", newVal => {
+			// this.$.body.classList.remove("overflowing");
+
 			if (!foobarNowPlaying.value || (foobarNowPlaying.value.artist === "" && foobarNowPlaying.value.track === "")) {
 				this.$.body.style.display = "none";
 			} else {
@@ -105,20 +96,32 @@ class TRMNowPlaying extends PolymerElement {
 				}
 			}
 
+			// reset before we do anything
+			tl.clear();
+			this.resetOverflowingTrackName();
+
+			// update the track and artist info
 			this.$.artist.textContent = newVal.artist;
 			this.$.track.textContent = newVal.track;
 
-			// clear current timeline
-			tl.clear();
-			this.resetOverflowingTrackName(tl);
+			// update the album information
+			if (newVal.album) {
+				this.$.album.textContent = newVal.album;
+				this.$.album_container.style.display = "initial";
+			} else this.$.album_container.style.display = "none";
 
-			// see if the track is too long and take measures to fit it
-			if (this.$.track_container.clientWidth > this.$.body.clientWidth) {
-				this.$.body.classList.add("overflowing");
-				this.handleOverflowingTrackName();
-			} else {
-				this.$.body.classList.remove("overflowing");
-			}
+			setTimeout(() => {
+				const boundingRectTrackArtist = this.$.track_artist.getBoundingClientRect();
+				const boundingRectBody = this.$.body.getBoundingClientRect();
+
+				// see if the track is too long and take measures to fit it
+				if (boundingRectTrackArtist.right > boundingRectBody.right) {
+					// this.$.body.classList.add("overflowing");
+					this.handleOverflowingTrackName();
+				} else {
+					this.$.body.classList.remove("overflowing");
+				}
+			}, 0);
 		});
 
 		if (this.hasBackground) {
@@ -135,26 +138,19 @@ class TRMNowPlaying extends PolymerElement {
 			{
 				marginLeft: `-${overflowAmount}px`,
 				ease: Power0.easeOut,
-				onComplete: () => this.resetOverflowingTrackName(tl, true),
+				onComplete: () => this.resetOverflowingTrackName(true),
 			},
 			`+=5`
 		);
 	}
 
-	resetOverflowingTrackName(tl, shouldContinue) {
+	resetOverflowingTrackName(shouldContinue) {
 		// reset the margin
-		tl.to(
-			this.$.track_artist,
-			0,
-			{
-				marginLeft: 0,
-				ease: Power0.easeOut,
-			},
-			shouldContinue ? `+=5` : ``
-		);
+		if (!shouldContinue) return tl.set(this.$.track_artist, { marginLeft: 0 });
 
-		// and do it all again
-		if (shouldContinue) this.handleOverflowingTrackName();
+		// and do it all again if shouldContinue was set
+		tl.to(this.$.track_artist, 0, { marginLeft: 0, ease: Power0.easeOut }, `+=5`);
+		this.handleOverflowingTrackName();
 	}
 }
 

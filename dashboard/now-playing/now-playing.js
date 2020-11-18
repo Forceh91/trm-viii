@@ -13,6 +13,10 @@ class DashboardNowPlaying extends PolymerElement {
 		foobarNowPlaying.on("change", (newVal) => {
 			this.$.artist.textContent = newVal.artist;
 			this.$.track.textContent = newVal.track;
+			if (newVal.album) {
+				this.$.album.textContent = newVal.album;
+				this.$.album_container.style.display = "initial";
+			} else this.$.album_container.style.display = "none";
 		});
 	}
 }

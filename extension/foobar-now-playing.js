@@ -7,7 +7,8 @@ module.exports = function(nodecg) {
   const foobarNowPlaying = nodecg.Replicant("foobarNowPlaying", {
     defaultValue: {
       artist: "",
-      track: ""
+      track: "",
+      album: ""
     }
   });
 
@@ -29,5 +30,10 @@ module.exports = function(nodecg) {
       nodecg.log.info("[FOOBAR] New title received: " + data);
       foobarNowPlaying.value.track = data;
     });
+
+    socket.on("foo_album", data => {
+      nodecg.log.info("[FOOBAR] New album received: ", data);
+      foobarNowPlaying.value.album = data;
+    })
   });
 };
