@@ -48,12 +48,12 @@ module.exports = function (nodecg) {
 	}
 
 	// tiltify
-	try {
-		require("./tiltify.js")(nodecg);
-	} catch (e) {
-		nodecg.log.error('Failed to load "tiltify" lib:', e.stack);
-		process.exit(1);
-	}
+	// try {
+	// 	require("./tiltify.js")(nodecg);
+	// } catch (e) {
+	// 	nodecg.log.error('Failed to load "tiltify" lib:', e.stack);
+	// 	process.exit(1);
+	// }
 
 	// runner timer
 	try {
@@ -84,6 +84,14 @@ module.exports = function (nodecg) {
 		require("./obs-audio-control.js")(nodecg);
 	} catch (e) {
 		nodecg.log.error('Failed to load "obs-audio-controller" lib:', e.stack);
+		process.exit(1);
+	}
+
+	// twitch
+	try {
+		require("./twitch")(nodecg);
+	} catch (e) {
+		nodecg.log.error('Failed to load "twitch" lib:', e.stack);
 		process.exit(1);
 	}
 };

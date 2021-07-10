@@ -1,7 +1,7 @@
 {
-	"description": "The on-screen graphics used during Tomb Raider Marathon VII",
-	"name": "trm-vii",
-	"version": "7.0.0",
+	"description": "The on-screen graphics used during Tomb Raider Marathon VIII",
+	"name": "trm-viii",
+	"version": "8.0.0",
 	"contributors": [
 		"Matt Hadden <info@tombraidermarathon.com>"
 	],
@@ -29,7 +29,9 @@
 		"@polymer/polymer": "^3.3.1",
 		"bootstrap": "^4.4.1",
 		"moment": "^2.24.0",
+		"node-twitch": "^0.4.5",
 		"obs-websocket-js": "^4.0.2",
+		"passport-twitch-new": "^0.0.2",
 		"request": "^2.87.0",
 		"request-promise": "^4.2.2",
 		"socket.io": "^2.2.0",
@@ -223,6 +225,11 @@
 			},
 			{
 				"file": "attendee.html",
+				"width": 1920,
+				"height": 1080
+			},
+			{
+				"file": "techland.html",
 				"width": 1920,
 				"height": 1080
 			}
