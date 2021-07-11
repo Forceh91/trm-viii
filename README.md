@@ -1,6 +1,6 @@
 # Tomb Raider Marathon Bundle
 
-TRM bundle for NodeCG with built in Tiltify. This bundle was used during TRM VII.
+TRM bundle for NodeCG with built in Tiltify. This bundle was used during TRM VIII.
 
 Marathon colour is: #ffa301 / #fe5100
 
@@ -8,7 +8,7 @@ Marathon colour is: #ffa301 / #fe5100
 
 ## Installation
 
-1. Download the latest [NodeCG Release](https://github.com/nodecg/nodecg/releases)
+1. Download the latest [NodeCG Release](https://github.com/nodecg/nodecg/releases) (1.8 is used currently)
 2. Copy this folder to `<nodecg>/bundles/` and then run `install.bat`
 3. Run NodeCG
 
@@ -16,7 +16,7 @@ Marathon colour is: #ffa301 / #fe5100
 
 Development for this bundle should **never** be done on the `main` branch. Always create a new branch with a brief description of the changes you wish to make.
 
-Once you are happy with your changes then you can push them to GitHub and [create a new Pull Request](https://github.com/Forceh91/trm-vii/pulls).
+Once you are happy with your changes then you can push them to GitHub and [create a new Pull Request](https://github.com/Forceh91/trm-viii/pulls).
 
 ### Before pushing your branch to GitHub
 
