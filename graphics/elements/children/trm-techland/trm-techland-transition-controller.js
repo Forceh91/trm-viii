@@ -6,10 +6,7 @@ const transitionCurrentState = nodecg.Replicant("transition_current_state");
 class TRMTechLandTransitionController extends PolymerElement {
   static get template() {
     return html`
-      <link
-        rel="stylesheet"
-        href="../shared/fonts/fontawesome/font-awesome.min.css"
-      />
+      <link rel="stylesheet" href="../shared/fonts/fontawesome/font-awesome.min.css" />
 
       <style>
         :host {
@@ -64,6 +61,13 @@ class TRMTechLandTransitionController extends PolymerElement {
           display: inline-block;
         }
 
+        #transition_stages .attention {
+          color: darkorange;
+        }
+        #transition_stages .attention .fa-exclamation-circle {
+          display: inline-block;
+        }
+
         #transition_stages .complete {
           opacity: 0.6;
         }
@@ -87,6 +91,8 @@ class TRMTechLandTransitionController extends PolymerElement {
           <button id="begin_transmission" type="button" class="btn btn-warning">
             <span>Begin Transmission</span>
           </button>
+          <button id="confirm_runners_ready" type="button" class="btn btn-success"></button>
+          <button id="transition_to_live" type="button" class="btn btn-danger"></button>
         </div>
       </div>
     `;
@@ -105,6 +111,7 @@ class TRMTechLandTransitionController extends PolymerElement {
 
     transitionCurrentState.on("change", (newVal) => {
       this.updateCurrentTransitionState(newVal);
+      this.setBeginTransmissionButtonState(newVal);
 
       nodecg.sendMessage("transition:get_transition_list", {}, (stages) => {
         this.$.transition_stages.innerHTML = "";
@@ -112,20 +119,12 @@ class TRMTechLandTransitionController extends PolymerElement {
         stages.forEach((stage) => {
           let classString =
             newVal.stage.id === stage.id
-              ? this.getClassForTransitionState(
-                  transitionCurrentState.value.state
-                )
+              ? this.getClassForTransitionState(transitionCurrentState.value.state)
               : "pending";
-          if (newVal.stage.id > stage.id)
-            classString = this.getClassForTransitionState(2);
-          this.$.transition_stages.innerHTML += `<li class="${classString}"><i class="fa fa-circle-notch"></i><i class="fa fa-spinner fa-spin"></i><i class="fa fa-check"></i><span>${stage.title}</span></li>`;
+          if (newVal.stage.id > stage.id) classString = this.getClassForTransitionState(2);
+          this.$.transition_stages.innerHTML += `<li class="${classString}"><i class="fa fa-circle-notch"></i><i class="fa fa-spinner fa-spin"></i><i class="fa fa-check"></i><i class="fa fa-exclamation-circle"></i><span>${stage.title}</span></li>`;
         });
       });
-
-      this.$.begin_transmission.addEventListener(
-        "click",
-        this.beginTransmission.bind(this)
-      );
     });
   }
 
@@ -147,13 +146,68 @@ class TRMTechLandTransitionController extends PolymerElement {
   beginTransmission() {
     const self = this;
     nodecg.sendMessage("transition:start_transmission", null, () => {
-      self.$.begin_transmission.setAttribute("disabled", true);
-      self.$.begin_transmission.textContent = "Transitioning...";
+      self.disableBeginTransmission().bind(self);
     });
+  }
+
+  setBeginTransmissionButtonState(state) {
+    this.disableConfirmRunnersReady();
+    this.disableConfirmTransitionToLive(state.stage.id < 6);
+
+    if (state.stage.id !== -1) this.disableBeginTransmission(); // past game screen
+    if (state.stage.id === -1) this.enableBeginTransmission(); // on game screen
+    if (state.stage.id === 5 && state.state !== 2) this.enableConfirmRunnersReady();
+    if (state.stage.id === 6 && state.state !== 2) this.enableConfirmTransitionToLive();
+  }
+
+  enableBeginTransmission() {
+    this.$.begin_transmission.textContent = "Transition to game change";
+    this.$.begin_transmission.removeAttribute("disabled");
+    this.$.begin_transmission.addEventListener("click", this.beginTransmission.bind(this));
+  }
+
+  disableBeginTransmission() {
+    const self = this;
+    self.$.begin_transmission.setAttribute("disabled", true);
+    self.$.begin_transmission.textContent = "Transitioning...";
+  }
+
+  enableConfirmRunnersReady() {
+    const self = this;
+    self.$.confirm_runners_ready.removeAttribute("disabled");
+    self.$.confirm_runners_ready.textContent = "Confirm runners ready";
+    self.$.confirm_runners_ready.addEventListener("click", self.userConfirmRunnersReady);
+  }
+
+  disableConfirmRunnersReady() {
+    const self = this;
+    self.$.confirm_runners_ready.setAttribute("disabled", true);
+    self.$.confirm_runners_ready.textContent = "RUNNERS READY";
+    self.$.confirm_runners_ready.removeEventListener("click", self.userConfirmRunnersReady);
+  }
+
+  userConfirmRunnersReady() {
+    nodecg.sendMessage("transition:user_confirmed_runners_ready");
+    this.disableConfirmRunnersReady();
+  }
+
+  enableConfirmTransitionToLive() {
+    const self = this;
+    self.$.transition_to_live.removeAttribute("disabled");
+    self.$.transition_to_live.textContent = "Transition to live (game)";
+    self.$.transition_to_live.addEventListener("click", self.userWantsGameScreen);
+  }
+
+  disableConfirmTransitionToLive(isBefore) {
+    const self = this;
+    self.$.transition_to_live.setAttribute("disabled", true);
+    self.$.transition_to_live.textContent = isBefore ? "Transition to live (game)" : "GAME SCREEN REQUESTED";
+    self.$.transition_to_live.removeEventListener("click", self.userWantsGameScreen);
+  }
+
+  userWantsGameScreen() {
+    nodecg.sendMessage("transition:user_wants_game_screen");
   }
 }
 
-customElements.define(
-  TRMTechLandTransitionController.is,
-  TRMTechLandTransitionController
-);
+customElements.define(TRMTechLandTransitionController.is, TRMTechLandTransitionController);

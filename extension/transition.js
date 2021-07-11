@@ -27,6 +27,26 @@ const TRANSITION_STAGES = {
     title: "Start music",
     requiresInput: false,
   },
+  CONFIRM_RUNNERS_READY: {
+    id: 5,
+    title: "Confirm runners ready",
+    requiresInput: true,
+  },
+  BEGIN_TRANSITION_TO_GAME: {
+    id: 6,
+    title: "Start transition to LIVE",
+    requiresInput: true,
+  },
+  STOP_MUSIC: {
+    id: 7,
+    title: "Stop music",
+    requiresInput: false,
+  },
+  SHOW_GAME_SCREEN: {
+    id: 8,
+    title: "Switch OBS to game screen",
+    requiresInput: false,
+  },
   GAME_SCREEN_VISIBLE: {
     id: -1,
     title: "Game screen visible",
@@ -86,6 +106,10 @@ module.exports = (nodecg) => {
         TRANSITION_STAGES.UPDATE_TWITCH_TITLE,
         TRANSITION_STAGES.RUN_ADVERTS,
         TRANSITION_STAGES.START_MUSIC,
+        TRANSITION_STAGES.CONFIRM_RUNNERS_READY,
+        TRANSITION_STAGES.BEGIN_TRANSITION_TO_GAME,
+        TRANSITION_STAGES.STOP_MUSIC,
+        TRANSITION_STAGES.SHOW_GAME_SCREEN,
       ]);
   });
 
@@ -101,6 +125,18 @@ module.exports = (nodecg) => {
     startOBSTransitionToGameChange();
 
     if (typeof callback === "function") callback();
+  });
+
+  nodecg.listenFor("transition:user_confirmed_runners_ready", () => {
+    const nextStage = TRANSITION_STAGES.BEGIN_TRANSITION_TO_GAME;
+    transitionStateReplicant.value = {
+      stage: nextStage,
+      state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
+    };
+  });
+
+  nodecg.listenFor("transition:user_wants_game_screen", () => {
+    startFoobarMusicStop();
   });
 
   function startOBSTransitionToGameChange() {
@@ -168,7 +204,59 @@ module.exports = (nodecg) => {
     const nextStage = TRANSITION_STAGES.START_MUSIC;
     transitionStateReplicant.value = {
       stage: nextStage,
-      state: STATE.COMPLETE, //nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
+      state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
     };
+
+    // confirm that foobar has done this
+    setTimeout(() => {
+      moveToConfirmRunnersReady();
+    }, 5 * 1000);
+  }
+
+  function moveToConfirmRunnersReady() {
+    const nextStage = TRANSITION_STAGES.CONFIRM_RUNNERS_READY;
+    transitionStateReplicant.value = {
+      stage: nextStage,
+      state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
+    };
+  }
+
+  function startFoobarMusicStop() {
+    const nextStage = TRANSITION_STAGES.STOP_MUSIC;
+    transitionStateReplicant.value = {
+      stage: nextStage,
+      state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
+    };
+
+    // confirm that foobar has done this
+    setTimeout(() => {
+      moveToGameScreen();
+    }, 5 * 1000);
+  }
+
+  function moveToGameScreen() {
+    const nextStage = TRANSITION_STAGES.SHOW_GAME_SCREEN;
+    transitionStateReplicant.value = {
+      stage: nextStage,
+      state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
+    };
+
+    // confirm that OBS has done this
+    setTimeout(() => {
+      completeTransitionToGameScreen();
+    }, 5 * 1000);
+  }
+
+  function completeTransitionToGameScreen() {
+    transitionStateReplicant.value.state = STATE.COMPLETE;
+
+    // 30s later reset all the transition stuff
+    setTimeout(() => {
+      const nextStage = TRANSITION_STAGES.GAME_SCREEN_VISIBLE;
+      transitionStateReplicant.value = {
+        stage: nextStage,
+        state: STATE.COMPLETE,
+      };
+    }, 10 * 1000);
   }
 };
