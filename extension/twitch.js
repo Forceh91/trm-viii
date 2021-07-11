@@ -1,4 +1,4 @@
-("use strict");
+"use strict";
 
 module.exports = function (nodecg) {
   const TwitchHelixAPI = require("node-twitch").default;
@@ -8,20 +8,21 @@ module.exports = function (nodecg) {
   let broadcasterID = "";
   const twitchTitleReplicant = nodecg.Replicant("twitch_title", {
     defaultValue: "",
+    persistent: false,
+  });
+  const twitchAdvertReplicant = nodecg.Replicant("twitch_ad_status", {
+    defaultValue: { length: 0, end_time: 0 },
+    persistent: false,
   });
 
   const twitch = new TwitchHelixAPI({
     client_id: nodecg.bundleConfig.twitch_client_id,
     client_secret: nodecg.bundleConfig.twitch_client_secret,
-    scopes: [
-      "channel:edit:commercial",
-      "channel:manage:broadcast",
-      "user:edit:broadcast",
-    ],
+    scopes: ["channel:edit:commercial", "channel:manage:broadcast", "user:edit:broadcast"],
   });
 
-  console.warn("*** WAITING FOR TWITCH AUTHORIZATION ***");
-  console.error("*** AUTOMATIC TRANSITIONS WILL NOT WORK WITHOUT THIS ***");
+  nodecg.log.warn("*** WAITING FOR TWITCH AUTHORIZATION ***");
+  nodecg.log.error("*** AUTOMATIC TRANSITIONS WILL NOT WORK WITHOUT THIS ***");
 
   const passport = Passport.use(
     new TwitchPassport(
@@ -29,8 +30,7 @@ module.exports = function (nodecg) {
         clientID: nodecg.bundleConfig.twitch_client_id,
         clientSecret: nodecg.bundleConfig.twitch_client_secret,
         callbackURL: "http://localhost:9090/trm-viii/auth/twitch/callback",
-        scope:
-          "channel:edit:commercial channel:manage:broadcast user:edit:broadcast",
+        scope: "channel:edit:commercial channel:manage:broadcast user:edit:broadcast",
       },
       function (accessToken, refreshToken, profile, done) {
         if (!profile || !accessToken || !refreshToken) return;
@@ -39,8 +39,8 @@ module.exports = function (nodecg) {
         twitch.access_token = accessToken;
         twitch.refresh_token = refreshToken;
 
-        console.log("*** TWITCH CONNECTED SUCCESSFULLY ****");
-        console.log("*** AUTOMATIC TRANSITIONS ARE NOW ENABLED ****");
+        nodecg.log.info("*** TWITCH CONNECTED SUCCESSFULLY ****");
+        nodecg.log.info("*** AUTOMATIC TRANSITIONS ARE NOW ENABLED ****");
 
         completeTwitchSetup();
         done();
@@ -51,29 +51,55 @@ module.exports = function (nodecg) {
   //   window.open("http://localhost:9090/trm-viii/authenticatenodecgtwitch");
 
   const router = nodecg.Router();
-  router.get(
-    "/authenticatenodecgtwitch",
-    passport.authenticate("twitch", { forceVerify: true })
-  );
+  router.get("/authenticatenodecgtwitch", passport.authenticate("twitch", { forceVerify: true }));
   router.get(
     "/auth/twitch/callback",
     passport.authenticate("twitch", { failureRedirect: "/dashboard" }),
     function (req, res) {
       // Successful authentication, redirect home.
-      res.redirect("http://localhost:9090/dashboard");
+      res.redirect("http://localhost:9090/bundles/trm-viii/graphics/techland.html");
     }
   );
 
   nodecg.mount("/trm-viii", router);
 
   function completeTwitchSetup() {
-    twitch
-      .getChannelInformation({ broadcaster_id: broadcasterID })
-      .then((resp) => {
-        if (!resp.data || !resp.data.length) return;
+    twitch.getChannelInformation({ broadcaster_id: broadcasterID }).then((resp) => {
+      if (!resp.data || !resp.data.length) return;
 
-        const channelInfo = resp.data[0] || {};
-        twitchTitleReplicant.value = channelInfo.title;
-      });
+      const channelInfo = resp.data[0] || {};
+      twitchTitleReplicant.value = channelInfo.title;
+    });
   }
+
+  nodecg.listenFor("twitch:update_title_and_game", ({ title, game }) => {
+    twitch
+      .modifyChannelInformation({
+        broadcaster_id: broadcasterID,
+        title: encodeURI(title),
+        game_id: game,
+      })
+      .then(() => {
+        console.log("twitch title updated...");
+        twitchTitleReplicant.value = title;
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  });
+
+  nodecg.listenFor("twitch:run_adverts", () => {
+    const length = 90;
+    twitch
+      .startCommercial({ broadcaster_id: broadcasterID, length: length })
+      .then((resp) => {
+        // const jsonResp = JSON.parse(resp);
+        // if (!jsonResp || jsonResp.status !== 200) return;
+        twitchAdvertReplicant.value.length = length;
+        twitchAdvertReplicant.value.end_time = Date.now() + length * 1000;
+      })
+      .catch((e) => {
+        console.log("Failed to run Twitch adverts:", e);
+      });
+  });
 };
