@@ -2,6 +2,7 @@ import { html } from "../../../../node_modules/@polymer/polymer/lib/utils/html-t
 import { PolymerElement } from "../../../../node_modules/@polymer/polymer/polymer-element.js";
 
 const transitionCurrentState = nodecg.Replicant("transition_current_state");
+const twitchAdStatus = nodecg.Replicant("twitch_ad_status");
 
 class TRMTechLandTransitionController extends PolymerElement {
   static get template() {
@@ -144,6 +145,9 @@ class TRMTechLandTransitionController extends PolymerElement {
   }
 
   beginTransmission() {
+    const resp = confirm("Are you sure you want to transition to game change? THIS CANNOT BE UNDONE ONCE STARTED");
+    if (!resp) return;
+
     const self = this;
     nodecg.sendMessage("transition:start_transmission", null, () => {
       self.disableBeginTransmission().bind(self);
@@ -187,6 +191,9 @@ class TRMTechLandTransitionController extends PolymerElement {
   }
 
   userConfirmRunnersReady() {
+    const resp = confirm("Are you sure runners are ready? Game looks good and audio sounds good for everyone?");
+    if (!resp) return;
+
     nodecg.sendMessage("transition:user_confirmed_runners_ready");
     this.disableConfirmRunnersReady();
   }
@@ -206,6 +213,14 @@ class TRMTechLandTransitionController extends PolymerElement {
   }
 
   userWantsGameScreen() {
+    if (twitchAdStatus && twitchAdStatus.value && twitchAdStatus.value.end_time > Date.now())
+      return alert("ADVERTS ARE STILL RUNNING, WAIT UNTIL THESE ARE COMPLETE");
+
+    const resp = confirm(
+      "Are you want to show the LIVE GAME SCREEN?\n\nTHE REMAINING STEPS ARE AUTOMATED AND CANNOT BE STOPPED\n\nONCE TRANSITION IS COMPLETE THE TECH DESK WILL BE LOCKED FOR 10 SECONDS"
+    );
+    if (!resp) return;
+
     nodecg.sendMessage("transition:user_wants_game_screen");
   }
 }
