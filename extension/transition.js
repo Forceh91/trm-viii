@@ -164,15 +164,12 @@ module.exports = (nodecg) => {
 
   nodecg.listenFor("obs:new_scene_activated", () => {
     const transitionState = transitionStateReplicant.value;
-    console.log("obs finished changing", transitionState.stage);
     switch (transitionState.stage.id) {
       case TRANSITION_STAGES.TRANSITION_TO_SETUP_SCREEN.id:
-        console.log("a");
         if (transitionState.state === STATE.WORKING) startStreamOverlayRunUpdate();
         break;
 
       case TRANSITION_STAGES.SHOW_GAME_SCREEN.id:
-        console.log("b");
         if (transitionState.state === STATE.WORKING) completeTransitionToGameScreen();
         break;
     }
