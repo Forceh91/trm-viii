@@ -162,16 +162,24 @@ module.exports = (nodecg) => {
     startFoobarMusicStop();
   });
 
-  nodecg.listenFor("obs:new_scene_activated", () => {
-    const transitionState = transitionStateReplicant.value;
-    switch (transitionState.stage.id) {
-      case TRANSITION_STAGES.TRANSITION_TO_SETUP_SCREEN.id:
-        if (transitionState.state === STATE.WORKING) startStreamOverlayRunUpdate();
-        break;
+  nodecg.listenFor("obs:new_scene_activated", (sceneName) => {
+    if (sceneName === "countdown_screen") {
+      const nextStage = TRANSITION_STAGES.CONFIRM_RUNNERS_READY;
+      transitionStateReplicant.value = {
+        stage: nextStage,
+        state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
+      };
+    } else {
+      const transitionState = transitionStateReplicant.value;
+      switch (transitionState.stage.id) {
+        case TRANSITION_STAGES.TRANSITION_TO_SETUP_SCREEN.id:
+          if (transitionState.state === STATE.WORKING) startStreamOverlayRunUpdate();
+          break;
 
-      case TRANSITION_STAGES.SHOW_GAME_SCREEN.id:
-        if (transitionState.state === STATE.WORKING) completeTransitionToGameScreen();
-        break;
+        case TRANSITION_STAGES.SHOW_GAME_SCREEN.id:
+          if (transitionState.state === STATE.WORKING) completeTransitionToGameScreen();
+          break;
+      }
     }
   });
 

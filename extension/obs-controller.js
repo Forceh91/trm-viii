@@ -8,9 +8,9 @@ module.exports = (nodecg) => {
   const OBSWebSocket = require("obs-websocket-js");
   const obs = new OBSWebSocket();
 
-  console.log("waiting 5s then connecting to obs");
+  nodecg.log.info("[OBS]", "OBS extension loaded, connecting to OBS in 5 seconds...");
   setTimeout(() => {
-    console.log("connecting to obs");
+    nodecg.log.info("[OBS]", "Connecting to OBS");
     connect();
   }, 5 * 1000);
 
@@ -95,7 +95,7 @@ module.exports = (nodecg) => {
           // before the socket has recieved confirmation of disabled studio mode.
         });
     }
-    console.log("Scenes updated");
+    nodecg.log.info("[OBS]", "Scenes updated");
   }
 
   async function getStudioMode() {
@@ -131,13 +131,13 @@ module.exports = (nodecg) => {
 
   async function connect() {
     host = host || "localhost:4444";
-    console.log("Connecting to:", host, "- using password:", password);
+    nodecg.log.info("[OBS]", "Connecting to:", host, "- using password:", password);
     await disconnect();
     connected = false;
     try {
       await obs.connect({ address: host, password, secure: false });
     } catch (e) {
-      console.log(e);
+      nodecg.log.error("[OBS]", e);
       errorMessage = e.description;
     }
   }
@@ -154,13 +154,13 @@ module.exports = (nodecg) => {
   // OBS events
   obs.on("ConnectionClosed", () => {
     connected = false;
-    console.log("Connection closed");
+    nodecg.log.info("[OBS]", "Connection closed");
   });
   obs.on("AuthenticationSuccess", async () => {
-    console.log("Connected");
+    nodecg.log.info("[OBS]", "Connected");
     connected = true;
     const version = (await sendCommand("GetVersion")).obsWebsocketVersion || "";
-    console.log("OBS-websocket version:", version);
+    nodecg.log.info("[OBS]", "OBS-websocket version:", version);
     if (compareVersions(version, OBS_WEBSOCKET_LATEST_VERSION) < 0) {
       alert(
         "You are running an outdated OBS-websocket (version " +
@@ -172,6 +172,7 @@ module.exports = (nodecg) => {
     await getStudioMode();
     await updateScenes();
     await getScreenshot();
+    nodecg.sendMessage("obs:new_scene_activated", currentScene);
   });
 
   obs.on("AuthenticationFailure", async () => {
@@ -189,15 +190,15 @@ module.exports = (nodecg) => {
   });
   // Scenes
   obs.on("SwitchScenes", async (data) => {
-    console.log(`New Active Scene: ${data.sceneName}`);
-    nodecg.sendMessage("obs:new_scene_activated");
+    nodecg.log.info("[OBS]", `New Active Scene: ${data.sceneName}`);
+    nodecg.sendMessage("obs:new_scene_activated", data.sceneName);
     await updateScenes();
   });
   obs.on("error", (err) => {
-    console.error("Socket error:", err);
+    nodecg.log.error("[OBS]", "Socket error:", err);
   });
   obs.on("StudioModeSwitched", async (data) => {
-    console.log(`Studio Mode: ${data.newState}`);
+    nodecg.log.info("[OBS]", `Studio Mode: ${data.newState}`);
     isStudioMode = data.newState;
     if (!isStudioMode) {
       currentPreviewScene = false;
@@ -206,7 +207,7 @@ module.exports = (nodecg) => {
     }
   });
   obs.on("PreviewSceneChanged", async (data) => {
-    console.log(`New Preview Scene: ${data.sceneName}`);
+    nodecg.log.info("[OBS]", `New Preview Scene: ${data.sceneName}`);
     await updateScenes();
   });
 
@@ -220,6 +221,8 @@ module.exports = (nodecg) => {
 
   nodecg.listenFor("obs:show_live_game_screen", () => {
     transitionScene();
-    setPreview(`game_change`);
+    setTimeout(() => {
+      setPreview(`game_change`);
+    }, 1 * 1000);
   });
 };
