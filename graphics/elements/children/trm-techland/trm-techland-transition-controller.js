@@ -8,6 +8,7 @@ class TRMTechLandTransitionController extends PolymerElement {
   static get template() {
     return html`
       <link rel="stylesheet" href="../shared/fonts/fontawesome/font-awesome.min.css" />
+      <link rel="stylesheet" href="../shared/imports/bootstrap.css" />
 
       <style>
         :host {
@@ -77,28 +78,50 @@ class TRMTechLandTransitionController extends PolymerElement {
           color: forestgreen;
           display: initial;
         }
+
+        #button_container button:not(:last-child) {
+          margin-bottom: 15px;
+        }
+
+        #button_container {
+          align-items: center;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        #button_container button {
+          width: 100%;
+        }
       </style>
 
       <div id="transition_container">
         <div class="info-title">Current Stage</div>
         <div class="info-text"><span id="current_state"></span></div>
 
-        <div id="transition_stages_container">
-          <div class="info-title">Transition Stages</div>
-          <ul class="info-text" id="transition_stages"></ul>
-        </div>
+        <div class="row">
+          <div id="transition_stages_container" class="col">
+            <div class="info-title">Transition Stages</div>
+            <ul class="info-text" id="transition_stages"></ul>
+          </div>
 
-        <div id="button_container">
-          <button id="begin_transmission" on-click="beginTransmission" type="button" class="btn btn-warning">
-            <span>Begin Transmission</span>
-          </button>
-          <button
-            id="confirm_runners_ready"
-            on-click="userConfirmRunnersReady"
-            type="button"
-            class="btn btn-success"
-          ></button>
-          <button id="transition_to_live" on-click="userWantsGameScreen" type="button" class="btn btn-danger"></button>
+          <div id="button_container" class="col">
+            <button id="begin_transmission" on-click="beginTransmission" type="button" class="btn btn-warning">
+              <span>Begin Transmission</span>
+            </button>
+            <button
+              id="confirm_runners_ready"
+              on-click="userConfirmRunnersReady"
+              type="button"
+              class="btn btn-success"
+            ></button>
+            <button
+              id="transition_to_live"
+              on-click="userWantsGameScreen"
+              type="button"
+              class="btn btn-danger"
+            ></button>
+          </div>
         </div>
       </div>
     `;

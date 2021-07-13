@@ -23,7 +23,7 @@ class TRMTechLandOBSPreview extends PolymerElement {
             display: block;
             height: auto;
             margin: 0 auto;
-          width: 60%;
+          width: 70%;
         }
 
         #preview_container img:not(:last-child) {
