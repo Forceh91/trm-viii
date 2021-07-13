@@ -89,11 +89,16 @@ class TRMTechLandTransitionController extends PolymerElement {
         </div>
 
         <div id="button_container">
-          <button id="begin_transmission" type="button" class="btn btn-warning">
+          <button id="begin_transmission" on-click="beginTransmission" type="button" class="btn btn-warning">
             <span>Begin Transmission</span>
           </button>
-          <button id="confirm_runners_ready" type="button" class="btn btn-success"></button>
-          <button id="transition_to_live" type="button" class="btn btn-danger"></button>
+          <button
+            id="confirm_runners_ready"
+            on-click="userConfirmRunnersReady"
+            type="button"
+            class="btn btn-success"
+          ></button>
+          <button id="transition_to_live" on-click="userWantsGameScreen" type="button" class="btn btn-danger"></button>
         </div>
       </div>
     `;
@@ -155,6 +160,7 @@ class TRMTechLandTransitionController extends PolymerElement {
   }
 
   setBeginTransmissionButtonState(state) {
+    this.disableBeginTransmission();
     this.disableConfirmRunnersReady();
     this.disableConfirmTransitionToLive(state.stage.id < 6);
 
@@ -167,7 +173,6 @@ class TRMTechLandTransitionController extends PolymerElement {
   enableBeginTransmission() {
     this.$.begin_transmission.textContent = "Transition to game change";
     this.$.begin_transmission.removeAttribute("disabled");
-    this.$.begin_transmission.addEventListener("click", this.beginTransmission.bind(this));
   }
 
   disableBeginTransmission() {
@@ -177,39 +182,35 @@ class TRMTechLandTransitionController extends PolymerElement {
   }
 
   enableConfirmRunnersReady() {
-    const self = this;
-    self.$.confirm_runners_ready.removeAttribute("disabled");
-    self.$.confirm_runners_ready.textContent = "Confirm runners ready";
-    self.$.confirm_runners_ready.addEventListener("click", self.userConfirmRunnersReady);
+    this.$.confirm_runners_ready.removeAttribute("disabled");
+    this.$.confirm_runners_ready.textContent = "Confirm runners ready";
   }
 
   disableConfirmRunnersReady() {
     const self = this;
     self.$.confirm_runners_ready.setAttribute("disabled", true);
     self.$.confirm_runners_ready.textContent = "RUNNERS READY";
-    self.$.confirm_runners_ready.removeEventListener("click", self.userConfirmRunnersReady);
   }
 
   userConfirmRunnersReady() {
+    const self = this;
     const resp = confirm("Are you sure runners are ready? Game looks good and audio sounds good for everyone?");
     if (!resp) return;
 
     nodecg.sendMessage("transition:user_confirmed_runners_ready");
-    this.disableConfirmRunnersReady();
+    self.disableConfirmRunnersReady();
   }
 
   enableConfirmTransitionToLive() {
     const self = this;
     self.$.transition_to_live.removeAttribute("disabled");
     self.$.transition_to_live.textContent = "Transition to live (game)";
-    self.$.transition_to_live.addEventListener("click", self.userWantsGameScreen);
   }
 
   disableConfirmTransitionToLive(isBefore) {
     const self = this;
     self.$.transition_to_live.setAttribute("disabled", true);
     self.$.transition_to_live.textContent = isBefore ? "Transition to live (game)" : "GAME SCREEN REQUESTED";
-    self.$.transition_to_live.removeEventListener("click", self.userWantsGameScreen);
   }
 
   userWantsGameScreen() {
