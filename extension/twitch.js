@@ -80,7 +80,8 @@ module.exports = function (nodecg) {
         game_id: game,
       })
       .then(() => {
-        console.log("twitch title updated...");
+        // const jsonResp = JSON.parse(resp);
+        // if (!jsonResp || jsonResp.status !== 200) return;
         twitchTitleReplicant.value = title;
       })
       .catch((e) => {

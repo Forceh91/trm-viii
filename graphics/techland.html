@@ -72,6 +72,14 @@
             margin-top: 30px;
           }
 
+          #bottom_split {
+            display: flex;
+            flex-direction: column;
+            float: left;
+            padding: 15px;
+            width: 100vw;
+          }
+
           .info-title {
             color: #cacaca;
             font-size: 20px;
@@ -115,6 +123,7 @@
 
             <div>
               <div class="info-title">Currently Playing Track</div>
+              <div class="info-text"><trm-techland-now-playing></trm-techland-now-playing></div>
             </div>
 
             <div>
@@ -123,6 +132,9 @@
                 <trm-techland-total></trm-techland-total>
               </div>
             </div>
+          </div>
+          <div id="bottom_split">
+            <trm-techland-obs-preview></trm-techland-obs-preview>
           </div>
         </div>
       </template>
@@ -146,7 +158,9 @@
       import "./elements/children/trm-techland/trm-techland-current-run.js";
       import "./elements/children/trm-techland/trm-techland-twitch-title.js";
       import "./elements/children/trm-techland/trm-techland-twitch-ad-status.js";
+      import "./elements/children/trm-techland/trm-techland-now-playing.js";
       import "./elements/children/trm-techland/trm-techland-transition-controller.js";
+      import "./elements/children/trm-techland/trm-techland-obs-preview.js";
 
       window.addEventListener("DOMContentLoaded", () => {
         TweenLite.to(document.body, 0.333, {

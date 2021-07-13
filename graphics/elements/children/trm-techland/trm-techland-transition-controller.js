@@ -213,8 +213,8 @@ class TRMTechLandTransitionController extends PolymerElement {
   }
 
   userWantsGameScreen() {
-    if (twitchAdStatus && twitchAdStatus.value && twitchAdStatus.value.end_time > Date.now())
-      return alert("ADVERTS ARE STILL RUNNING, WAIT UNTIL THESE ARE COMPLETE");
+    // if (twitchAdStatus && twitchAdStatus.value && twitchAdStatus.value.end_time > Date.now())
+    //   return alert("ADVERTS ARE STILL RUNNING, WAIT UNTIL THESE ARE COMPLETE");
 
     const resp = confirm(
       "Are you want to show the LIVE GAME SCREEN?\n\nTHE REMAINING STEPS ARE AUTOMATED AND CANNOT BE STOPPED\n\nONCE TRANSITION IS COMPLETE THE TECH DESK WILL BE LOCKED FOR 10 SECONDS"

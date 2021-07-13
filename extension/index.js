@@ -32,12 +32,12 @@ module.exports = function (nodecg) {
   }
 
   // foobar now playing
-  // try {
-  //   require("./foobar-now-playing.js")(nodecg);
-  // } catch (e) {
-  //   nodecg.log.error('Failed to load "foobar-now-playing" lib:', e.stack);
-  //   process.exit(1);
-  // }
+  try {
+    require("./foobar-now-playing.js")(nodecg);
+  } catch (e) {
+    nodecg.log.error('Failed to load "foobar-now-playing" lib:', e.stack);
+    process.exit(1);
+  }
 
   // donation sounds
   try {
@@ -48,12 +48,12 @@ module.exports = function (nodecg) {
   }
 
   // tiltify
-  // try {
-  // 	require("./tiltify.js")(nodecg);
-  // } catch (e) {
-  // 	nodecg.log.error('Failed to load "tiltify" lib:', e.stack);
-  // 	process.exit(1);
-  // }
+  try {
+    require("./tiltify.js")(nodecg);
+  } catch (e) {
+    nodecg.log.error('Failed to load "tiltify" lib:', e.stack);
+    process.exit(1);
+  }
 
   // runner timer
   try {
@@ -97,9 +97,17 @@ module.exports = function (nodecg) {
 
   // transition
   try {
-    require("./transition.js")(nodecg);
+    require("./transition")(nodecg);
   } catch (e) {
     nodecg.log.error('Failed to load "transition" lib:', e.stack);
+    process.exit(1);
+  }
+
+  // obs controller
+  try {
+    require("./obs-controller")(nodecg);
+  } catch (e) {
+    nodecg.log.error('Failed to load "obs-controller" lib:', e.stack);
     process.exit(1);
   }
 };

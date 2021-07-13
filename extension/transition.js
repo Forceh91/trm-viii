@@ -97,6 +97,31 @@ module.exports = (nodecg) => {
       startFoobarMusicPlay();
   });
 
+  nodecg.listenFor("foobar:start_playing_complete", () => {
+    if (!transitionStateReplicant || !transitionStateReplicant.value) return;
+
+    const currentTransitionState = transitionStateReplicant.value;
+    if (
+      currentTransitionState.stage.id === TRANSITION_STAGES.START_MUSIC.id &&
+      currentTransitionState.state === STATE.WORKING
+    )
+      moveToConfirmRunnersReady();
+  });
+
+  nodecg.listenFor("foobar:stop_playing_complete", () => {
+    if (!transitionStateReplicant || !transitionStateReplicant.value) return;
+
+    const currentTransitionState = transitionStateReplicant.value;
+    if (
+      currentTransitionState.stage.id === TRANSITION_STAGES.STOP_MUSIC.id &&
+      currentTransitionState.state === STATE.WORKING
+    )
+      setTimeout(() => {
+        // we wait 5s here because we fade out music when stopping it
+        moveToGameScreen();
+      }, 5 * 1000);
+  });
+
   nodecg.listenFor("transition:get_transition_list", (data, callback) => {
     if (typeof callback === "function")
       callback([
@@ -113,7 +138,7 @@ module.exports = (nodecg) => {
       ]);
   });
 
-  nodecg.listenFor("transition:start_transmission", (data, callback) => {
+  nodecg.listenFor("transition:start_transmission", (data) => {
     if (transitionStateReplicant.value.stage.id !== TRANSITION_STAGES.GAME_SCREEN_VISIBLE.id) return;
 
     const firstStage = TRANSITION_STAGES.TRANSITION_TO_SETUP_SCREEN;
@@ -123,8 +148,6 @@ module.exports = (nodecg) => {
     };
 
     startOBSTransitionToGameChange();
-
-    if (typeof callback === "function") callback();
   });
 
   nodecg.listenFor("transition:user_confirmed_runners_ready", () => {
@@ -139,16 +162,24 @@ module.exports = (nodecg) => {
     startFoobarMusicStop();
   });
 
-  function startOBSTransitionToGameChange() {
-    setTimeout(() => {
-      const nextStage = TRANSITION_STAGES.UPDATE_TWITCH_TITLE;
-      transitionStateReplicant.value = {
-        stage: nextStage,
-        state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
-      };
+  nodecg.listenFor("obs:new_scene_activated", () => {
+    const transitionState = transitionStateReplicant.value;
+    console.log("obs finished changing", transitionState.stage);
+    switch (transitionState.stage.id) {
+      case TRANSITION_STAGES.TRANSITION_TO_SETUP_SCREEN.id:
+        console.log("a");
+        if (transitionState.state === STATE.WORKING) startStreamOverlayRunUpdate();
+        break;
 
-      startStreamOverlayRunUpdate();
-    }, 1 * 1000);
+      case TRANSITION_STAGES.SHOW_GAME_SCREEN.id:
+        console.log("b");
+        if (transitionState.state === STATE.WORKING) completeTransitionToGameScreen();
+        break;
+    }
+  });
+
+  function startOBSTransitionToGameChange() {
+    nodecg.sendMessage("obs:show_game_change_screen");
   }
 
   function startStreamOverlayRunUpdate() {
@@ -208,9 +239,7 @@ module.exports = (nodecg) => {
     };
 
     // confirm that foobar has done this
-    setTimeout(() => {
-      moveToConfirmRunnersReady();
-    }, 5 * 1000);
+    nodecg.sendMessage("foobar:start_playing");
   }
 
   function moveToConfirmRunnersReady() {
@@ -228,10 +257,7 @@ module.exports = (nodecg) => {
       state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
     };
 
-    // confirm that foobar has done this
-    setTimeout(() => {
-      moveToGameScreen();
-    }, 5 * 1000);
+    nodecg.sendMessage("foobar:stop_playing");
   }
 
   function moveToGameScreen() {
@@ -241,10 +267,7 @@ module.exports = (nodecg) => {
       state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
     };
 
-    // confirm that OBS has done this
-    setTimeout(() => {
-      completeTransitionToGameScreen();
-    }, 5 * 1000);
+    nodecg.sendMessage("obs:show_live_game_screen");
   }
 
   function completeTransitionToGameScreen() {
