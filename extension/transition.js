@@ -105,7 +105,8 @@ module.exports = (nodecg) => {
       currentTransitionState.stage.id === TRANSITION_STAGES.START_MUSIC.id &&
       currentTransitionState.state === STATE.WORKING
     )
-      moveToConfirmRunnersReady();
+      nodecg.log.info("[TRANSITION]", "Foobar confirmed music is playing");
+    moveToConfirmRunnersReady();
   });
 
   nodecg.listenFor("foobar:stop_playing_complete", () => {
@@ -118,6 +119,7 @@ module.exports = (nodecg) => {
     )
       setTimeout(() => {
         // we wait 5s here because we fade out music when stopping it
+        nodecg.log.info("[TRANSITION]", "Foobar confirmed music is stopped");
         moveToGameScreen();
       }, 5 * 1000);
   });
@@ -151,6 +153,7 @@ module.exports = (nodecg) => {
   });
 
   nodecg.listenFor("transition:user_confirmed_runners_ready", () => {
+    nodecg.log.info("[TRANSITION]", "Tech Desk has confirmed runners are ready");
     const nextStage = TRANSITION_STAGES.BEGIN_TRANSITION_TO_GAME;
     transitionStateReplicant.value = {
       stage: nextStage,
@@ -184,6 +187,7 @@ module.exports = (nodecg) => {
   });
 
   function startOBSTransitionToGameChange() {
+    nodecg.log.info("[TRANSITION]", "Switching to game change screen");
     nodecg.sendMessage("obs:show_game_change_screen");
   }
 
@@ -194,11 +198,13 @@ module.exports = (nodecg) => {
       state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
     };
 
+    nodecg.log.info("[TRANSITION]", "Updating schedule to next game");
     nodecg.sendMessage("scheduleSelectNext");
   }
 
   function startTwitchTitleUpdate(game) {
     if (!game) return;
+    nodecg.log.info("[TRANSITION]", "Generating Twitch title/game");
 
     const nextStage = TRANSITION_STAGES.UPDATE_TWITCH_TITLE;
     transitionStateReplicant.value = {
@@ -218,6 +224,7 @@ module.exports = (nodecg) => {
       if (demarkdownRunner && demarkdownRunner[0]) runners.push(demarkdownRunner[0].trim());
     });
 
+    nodecg.log.info("[TRANSITION]", "Updating Twitch/Title game");
     nodecg.sendMessage("twitch:update_title_and_game", {
       title: `${nodecg.bundleConfig.marathon_name} for ${nodecg.bundleConfig.charity_name}: ${game[0]} ${
         game[3]
@@ -233,6 +240,7 @@ module.exports = (nodecg) => {
       state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
     };
 
+    nodecg.log.info("[TRANSITION]", "Running adverts");
     nodecg.sendMessage("twitch:run_adverts");
   }
 
@@ -244,6 +252,7 @@ module.exports = (nodecg) => {
     };
 
     // confirm that foobar has done this
+    nodecg.log.info("[TRANSITION]", "Asking Foobar to play");
     nodecg.sendMessage("foobar:start_playing");
   }
 
@@ -253,6 +262,7 @@ module.exports = (nodecg) => {
       stage: nextStage,
       state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
     };
+    nodecg.log.info("[TRANSITION]", "Transition ready to confirm runners ready");
   }
 
   function startFoobarMusicStop() {
@@ -262,6 +272,7 @@ module.exports = (nodecg) => {
       state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
     };
 
+    nodecg.log.info("[TRANSITION]", "Asking Foobar to stop playing");
     nodecg.sendMessage("foobar:stop_playing");
   }
 
@@ -272,14 +283,17 @@ module.exports = (nodecg) => {
       state: nextStage.requiresInput ? STATE.PENDING : STATE.WORKING,
     };
 
+    nodecg.log.info("[TRANSITION]", "Moving to game screen");
     nodecg.sendMessage("obs:show_live_game_screen");
   }
 
   function completeTransitionToGameScreen() {
+    nodecg.log.info("[TRANSITION]", "Game screen now visible, transition complete");
     transitionStateReplicant.value.state = STATE.COMPLETE;
 
     // 30s later reset all the transition stuff
     setTimeout(() => {
+      nodecg.log.info("[TRANSITION]", "Unlocking tech desk");
       const nextStage = TRANSITION_STAGES.GAME_SCREEN_VISIBLE;
       transitionStateReplicant.value = {
         stage: nextStage,
