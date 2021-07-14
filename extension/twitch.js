@@ -21,8 +21,8 @@ module.exports = function (nodecg) {
     scopes: ["channel:edit:commercial", "channel:manage:broadcast", "user:edit:broadcast"],
   });
 
-  nodecg.log.warn("*** WAITING FOR TWITCH AUTHORIZATION ***");
-  nodecg.log.error("*** AUTOMATIC TRANSITIONS WILL NOT WORK WITHOUT THIS ***");
+  nodecg.log.error("[TWITCH]", "Waiting for tech desk to authorize Twitch connection");
+  nodecg.log.error("[TWITCH]", "Twitch integration will not work until this is done");
 
   const passport = Passport.use(
     new TwitchPassport(
@@ -39,8 +39,8 @@ module.exports = function (nodecg) {
         twitch.access_token = accessToken;
         twitch.refresh_token = refreshToken;
 
-        nodecg.log.info("*** TWITCH CONNECTED SUCCESSFULLY ****");
-        nodecg.log.info("*** AUTOMATIC TRANSITIONS ARE NOW ENABLED ****");
+        nodecg.log.info("[TWITCH]", "Twitch has authorized the tech desk");
+        nodecg.log.info("[TWITCH]", "Automatic transitions are now active");
 
         completeTwitchSetup();
         done();
@@ -69,10 +69,12 @@ module.exports = function (nodecg) {
 
       const channelInfo = resp.data[0] || {};
       twitchTitleReplicant.value = channelInfo.title;
+      nodecg.log.info("[TWITCH]", "Twitch setup, current Twitch title retrieved");
     });
   }
 
   nodecg.listenFor("twitch:update_title_and_game", ({ title, game }) => {
+    nodecg.log.info("[TWITCH]", "Asking Twitch to update title/game");
     twitch
       .modifyChannelInformation({
         broadcaster_id: broadcasterID,
@@ -83,13 +85,15 @@ module.exports = function (nodecg) {
         // const jsonResp = JSON.parse(resp);
         // if (!jsonResp || jsonResp.status !== 200) return;
         twitchTitleReplicant.value = title;
+        nodecg.log.info("[TWITCH]", "Twitch has confirmed title/game update");
       })
       .catch((e) => {
-        console.log(e);
+        nodecg.log.error("[TWITCH]", "Unable to update title/game: " + e);
       });
   });
 
   nodecg.listenFor("twitch:run_adverts", () => {
+    nodecg.log.info("[TWITCH]", "Asking Twitch to run adverts");
     const length = 90;
     twitch
       .startCommercial({ broadcaster_id: broadcasterID, length: length })
@@ -98,9 +102,10 @@ module.exports = function (nodecg) {
         // if (!jsonResp || jsonResp.status !== 200) return;
         twitchAdvertReplicant.value.length = length;
         twitchAdvertReplicant.value.end_time = Date.now() + length * 1000;
+        nodecg.log.info("[TWITCH]", "Twitch has confirmed adverts are running");
       })
       .catch((e) => {
-        console.log("Failed to run Twitch adverts:", e);
+        nodecg.log.error("[TWITCH]", "Unable to run adverts: " + e);
       });
   });
 };
