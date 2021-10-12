@@ -81,9 +81,9 @@ module.exports = function (nodecg) {
         title: encodeURI(title),
         game_id: game,
       })
-      .then(() => {
-        const jsonResp = JSON.parse(resp);
-        if (!jsonResp || jsonResp.status !== 200) throw "Twitch response was not 200 OK";
+      .then((resp) => {
+        // const jsonResp = JSON.parse(resp.data);
+        // if (!jsonResp || jsonResp.status !== 200) throw "Twitch response was not 200 OK";
 
         twitchTitleReplicant.value = title;
         nodecg.log.info("[TWITCH]", "Twitch has confirmed title/game update");
@@ -99,8 +99,8 @@ module.exports = function (nodecg) {
     twitch
       .startCommercial({ broadcaster_id: broadcasterID, length: length })
       .then((resp) => {
-        const jsonResp = JSON.parse(resp);
-        if (!jsonResp || jsonResp.status !== 200) throw "Twitch response was not 200 OK";
+        // const jsonResp = JSON.parse(resp.data);
+        // if (!jsonResp || jsonResp.status !== 200) throw "Twitch response was not 200 OK";
 
         twitchAdvertReplicant.value.length = length;
         twitchAdvertReplicant.value.end_time = Date.now() + length * 1000;
