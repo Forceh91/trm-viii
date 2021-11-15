@@ -223,6 +223,6 @@ module.exports = (nodecg) => {
     transitionScene();
     setTimeout(() => {
       setPreview(`game_change`);
-    }, 1 * 1000);
+    }, 4 * 1000);
   });
 };
