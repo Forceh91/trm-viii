@@ -29,12 +29,13 @@
   <body>
     <script>
       function generateBackground() {
-        const rand = Math.floor(Math.random() * 33) + 1;
+        const rand = Math.floor(Math.random() * 1) + 1;
         setBackground(rand);
       }
 
       const setBackground = function (rand) {
-        document.body.style.backgroundImage = `url("./img/trm-bg-${rand}.jpg")`;
+        const el = document.querySelector("#video_background");
+        if (el) el.src = `./img/trm-bg-${rand}.mp4`;
       };
 
       generateBackground();
@@ -48,13 +49,28 @@
             box-sizing: border-box;
           }
 
-          :host {
-            background: rgba(0, 0, 0, 0.8);
+          :host,
+          #background_vid {
             height: 100%;
             left: 0;
             position: fixed;
             top: 0;
             width: 100%;
+          }
+
+          #overlay_container {
+            background: rgba(0, 0, 0, 0.6);
+            height: 100%;
+            left: 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 3;
+          }
+
+          #background_vid {
+            object-fit: cover;
+            z-index: 0;
           }
 
           #omnibar_container {
@@ -133,23 +149,27 @@
           }
         </style>
 
-        <div id="omnibar_container">
-          <trm-omnibar data-hide-timer="true" data-hide-deaths="true"></trm-omnibar>
-        </div>
+        <video id="background_vid" autoplay loop muted playinline src="./img/trm-loop-bg-0.mp4"></video>
 
-        <div id="body">
-          <div id="donation_notifier">
-            <trm-donation-notifier></trm-donation-notifier>
+        <div id="overlay_container">
+          <div id="omnibar_container">
+            <trm-omnibar data-hide-timer="true" data-hide-deaths="true"></trm-omnibar>
           </div>
 
-          <div id="starts_in">
-            <h1 class="main-title">Day 2 starts in</h1>
-            <trm-countdown></trm-countdown>
-            <h2 class="sub-title">8am EST / 1pm GMT / 2pm CET</h2>
-          </div>
+          <div id="body">
+            <div id="donation_notifier">
+              <trm-donation-notifier></trm-donation-notifier>
+            </div>
 
-          <div id="now_playing">
-            <trm-now-playing has-background></trm-now-playing>
+            <div id="starts_in">
+              <h1 class="main-title">Day 2 starts in</h1>
+              <trm-countdown></trm-countdown>
+              <h2 class="sub-title">8am EST / 1pm GMT / 2pm CET</h2>
+            </div>
+
+            <div id="now_playing">
+              <trm-now-playing has-background></trm-now-playing>
+            </div>
           </div>
         </div>
       </template>

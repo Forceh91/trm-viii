@@ -1,180 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Changing Game Screen</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Changing Game Screen</title>
 
-		<link rel="stylesheet" href="style/layout.css" />
-		<link rel="stylesheet" href="../shared/fonts/fontawesome/font-awesome.min.css" />
-		<link rel="stylesheet" href="../shared/fonts/exo2/exo2.css" />
-	</head>
+    <link rel="stylesheet" href="style/layout.css" />
+    <link rel="stylesheet" href="../shared/fonts/fontawesome/font-awesome.min.css" />
+    <link rel="stylesheet" href="../shared/fonts/exo2/exo2.css" />
+  </head>
 
-	<style>
-		#container {
-			font-family: "Exo 2", sans-serif;
-			left: 0;
-			top: 0;
-			position: fixed;
-			width: 1920px;
-			height: 1080px;
-		}
+  <style>
+    #container {
+      font-family: "Exo 2", sans-serif;
+      left: 0;
+      top: 0;
+      position: fixed;
+      width: 1920px;
+      height: 1080px;
+    }
 
-		body {
-			background: url("./img/trm-bg-1.jpg") 100% 100%;
-			background-size: cover;
-			transition: background-image 0.5s ease-in-out;
-		}
-	</style>
+    body {
+      background: url("./img/trm-bg-1.jpg") 100% 100%;
+      background-size: cover;
+      transition: background-image 0.5s ease-in-out;
+    }
+  </style>
 
-	<body>
-		<script>
-			function generateBackground() {
-				const rand = Math.floor(Math.random() * 33) + 1;
-				setBackground(rand);
-			}
+  <body>
+    <script>
+      function generateBackground() {
+        const rand = Math.floor(Math.random() * 1) + 1;
+        setBackground(rand);
+      }
 
-			const setBackground = function (rand) {
-				document.body.style.backgroundImage = `url("./img/trm-bg-${rand}.jpg")`;
-			};
+      const setBackground = function (rand) {
+        const el = document.querySelector("#video_background");
+        if (el) el.src = `./img/trm-bg-${rand}.mp4`;
+      };
 
-			generateBackground();
-			setInterval(generateBackground, 60 * 1000);
-		</script>
+      generateBackground();
+      setInterval(generateBackground, 60 * 1000);
+    </script>
 
-		<dom-module id="layout-app">
-			<template>
-				<style>
-					* {
-						box-sizing: border-box;
-					}
+    <dom-module id="layout-app">
+      <template>
+        <style>
+          * {
+            box-sizing: border-box;
+          }
 
-					:host {
-						background: rgba(0, 0, 0, 0.8);
-						height: 100%;
-						left: 0;
-						position: fixed;
-						top: 0;
-						width: 100%;
-					}
+          :host,
+          #background_vid {
+            height: 100%;
+            left: 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+          }
 
-					#omnibar_container {
-						background: #333;
-						color: #ddd;
-						position: absolute;
-						bottom: 0;
-						width: 100%;
-						height: 50px;
-					}
+          #overlay_container {
+            background: rgba(0, 0, 0, 0.6);
+            height: 100%;
+            left: 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 3;
+          }
 
-					#up_next {
-						border: 1px solid var(--marathon-col);
-						width: 500px;
-					}
+          #background_vid {
+            object-fit: cover;
+            z-index: 0;
+          }
 
-					#donation_notifier {
-						border: 1px solid var(--marathon-col);
-						width: 500px;
-					}
+          #omnibar_container {
+            background: #333;
+            color: #ddd;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+          }
 
-					#now_playing {
-						border: 1px solid var(--marathon-col);
-						width: 500px;
-					}
+          #up_next {
+            border: 1px solid var(--marathon-col);
+            width: 500px;
+          }
 
-					#donation_notifier trm-donation-notifier,
-					#up_next trm-break-next-game,
-					#now_playing trm-now-playing {
-						background: #11111188;
-					}
+          #donation_notifier {
+            border: 1px solid var(--marathon-col);
+            width: 500px;
+          }
 
-					#now_playing trm-now-playing {
-						display: flex;
-						padding: 15px;
-						width: 100%;
-					}
+          #now_playing {
+            border: 1px solid var(--marathon-col);
+            width: 500px;
+          }
 
-					#body {
-						align-items: center;
-						color: #fff;
-						display: flex;
-						flex-direction: column;
-						flex-wrap: wrap;
-						height: calc(100% - 50px);
-						justify-content: center;
-						width: 100%;
-					}
+          #donation_notifier trm-donation-notifier,
+          #up_next trm-break-next-game,
+          #now_playing trm-now-playing {
+            background: #11111188;
+          }
 
-					h1,
-					h2 {
-						margin: 0;
-					}
+          #now_playing trm-now-playing {
+            display: flex;
+            padding: 15px;
+            width: 100%;
+          }
 
-					h1:not(:last-child),
-					h2:not(:last-child) {
-						margin-bottom: 15px;
-					}
+          #body {
+            align-items: center;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            height: calc(100% - 50px);
+            justify-content: center;
+            width: 100%;
+          }
 
-					#cta {
-						background: #11111188;
-						color: #cacaca;
-						display: block;
-						padding: 15px 0;
-						text-align: center;
-						text-transform: uppercase;
-						width: 100%;
-					}
-				</style>
+          h1,
+          h2 {
+            margin: 0;
+          }
 
-				<div id="omnibar_container">
-					<trm-omnibar></trm-omnibar>
-				</div>
+          h1:not(:last-child),
+          h2:not(:last-child) {
+            margin-bottom: 15px;
+          }
 
-				<div id="body">
-					<div id="donation_notifier">
-						<trm-donation-notifier></trm-donation-notifier>
-					</div>
+          #cta {
+            background: #11111188;
+            color: #cacaca;
+            display: block;
+            padding: 15px 0;
+            text-align: center;
+            text-transform: uppercase;
+            width: 100%;
+          }
+        </style>
 
-					<div id="up_next">
-						<trm-break-next-game></trm-break-next-game>
-						<div id="cta">donate.tombraidermarathon.com</div>
-					</div>
+        <video id="background_vid" autoplay loop muted playinline src="./img/trm-loop-bg-0.mp4"></video>
 
-					<div id="now_playing">
-						<trm-now-playing has-background></trm-now-playing>
-					</div>
-				</div>
-			</template>
+        <div id="overlay_container">
+          <div id="omnibar_container">
+            <trm-omnibar></trm-omnibar>
+          </div>
 
-			<script type="module">
-				import { PolymerElement } from "../node_modules/@polymer/polymer/polymer-element.js";
+          <div id="body">
+            <div id="donation_notifier">
+              <trm-donation-notifier></trm-donation-notifier>
+            </div>
 
-				class ChangingGameScreen extends PolymerElement {
-					static get is() {
-						return "layout-app";
-					}
-				}
+            <div id="up_next">
+              <trm-break-next-game></trm-break-next-game>
+              <div id="cta">donate.tombraidermarathon.com</div>
+            </div>
 
-				customElements.define(ChangingGameScreen.is, ChangingGameScreen);
-			</script>
-		</dom-module>
+            <div id="now_playing">
+              <trm-now-playing has-background></trm-now-playing>
+            </div>
+          </div>
+        </div>
+      </template>
 
-		<script type="module">
-			import "../shared/imports/required.js";
-			import "./elements/parents/trm-omnibar/trm-omnibar.js";
-			import "./elements/parents/trm-donation-notifier/trm-donation-notifier.js";
-			import "./elements/parents/trm-now-playing/trm-now-playing.js";
-			import "./elements/parents/trm-break-next-game/trm-break-next-game.js";
+      <script type="module">
+        import { PolymerElement } from "../node_modules/@polymer/polymer/polymer-element.js";
 
-			window.addEventListener("DOMContentLoaded", () => {
-				TweenLite.to(document.body, 0.333, {
-					opacity: 1,
-					ease: Power1.easeOut,
-				});
-			});
-		</script>
+        class ChangingGameScreen extends PolymerElement {
+          static get is() {
+            return "layout-app";
+          }
+        }
 
-		<div id="container">
-			<layout-app></layout-app>
-		</div>
-	</body>
+        customElements.define(ChangingGameScreen.is, ChangingGameScreen);
+      </script>
+    </dom-module>
+
+    <script type="module">
+      import "../shared/imports/required.js";
+      import "./elements/parents/trm-omnibar/trm-omnibar.js";
+      import "./elements/parents/trm-donation-notifier/trm-donation-notifier.js";
+      import "./elements/parents/trm-now-playing/trm-now-playing.js";
+      import "./elements/parents/trm-break-next-game/trm-break-next-game.js";
+
+      window.addEventListener("DOMContentLoaded", () => {
+        TweenLite.to(document.body, 0.333, {
+          opacity: 1,
+          ease: Power1.easeOut,
+        });
+      });
+    </script>
+
+    <div id="container">
+      <layout-app></layout-app>
+    </div>
+  </body>
 </html>
