@@ -23,6 +23,7 @@ module.exports = function (nodecg) {
 
   nodecg.log.error("[TWITCH]", "Waiting for tech desk to authorize Twitch connection");
   nodecg.log.error("[TWITCH]", "Twitch integration will not work until this is done");
+  nodecg.log.info("[TWITCH]", "Please visit http://localhost:9090/trm-viii/authenticatenodecgtwitch");
 
   const passport = Passport.use(
     new TwitchPassport(

@@ -226,9 +226,9 @@ module.exports = (nodecg) => {
 
     nodecg.log.info("[TRANSITION]", "Updating Twitch/Title game");
     nodecg.sendMessage("twitch:update_title_and_game", {
-      title: `${nodecg.bundleConfig.marathon_name} for ${nodecg.bundleConfig.charity_name}: ${game[0]} ${
+      title: `${nodecg.bundleConfig.marathon_name} for ${nodecg.bundleConfig.charity_name}: ${game[0]} [${
         game[3]
-      } (${runners.join(", ")})`, // title
+      }] by ${runners.join(", ")}`, // title
       game: game[6] || 33214, // game
     });
   }
