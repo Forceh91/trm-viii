@@ -18,30 +18,9 @@
       width: 1920px;
       height: 1080px;
     }
-
-    body {
-      background: url("./img/trm-bg-1.jpg") 100% 100%;
-      background-size: cover;
-      transition: background-image 0.5s ease-in-out;
-    }
   </style>
 
   <body>
-    <script>
-      function generateBackground() {
-        const rand = Math.floor(Math.random() * 1) + 1;
-        setBackground(rand);
-      }
-
-      const setBackground = function (rand) {
-        const el = document.querySelector("#video_background");
-        if (el) el.src = `./img/trm-bg-${rand}.mp4`;
-      };
-
-      generateBackground();
-      setInterval(generateBackground, 60 * 1000);
-    </script>
-
     <dom-module id="layout-app">
       <template>
         <style>
@@ -170,6 +149,28 @@
         class CountdownScreen extends PolymerElement {
           static get is() {
             return "layout-app";
+          }
+
+          getRandomIntInclusive(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max) || min;
+            return Math.floor(Math.random() * (max - min + 1) + min); //The maximum is inclusive and the minimum is inclusive
+          }
+
+          generateBackground() {
+            const rand = this.getRandomIntInclusive(1, 80);
+            this.setBackground(rand);
+          }
+
+          setBackground(rand) {
+            const el = this.$.background_vid;
+            if (el) el.src = `./img/trm-bg-${rand}.mp4`;
+          }
+
+          ready() {
+            super.ready();
+            this.generateBackground();
+            setInterval(this.generateBackground.bind(this), 60 * 1000);
           }
         }
 
